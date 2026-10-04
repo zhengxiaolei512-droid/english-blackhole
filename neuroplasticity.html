@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>练习，真的会改变大脑 · Practice makes perfect</title>
+<style>
+  :root{
+    --bg:#060a13;
+    --bg2:#0a1220;
+    --ink:#e8f1f2;
+    --muted:#93a9b0;
+    --cyan:#34e0e8;
+    --teal:#2dd4bf;
+    --amber:#fbbf24;
+    --rose:#fb7185;
+    --line:rgba(120,200,210,.16);
+    --card:rgba(16,28,42,.72);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+  }
+  ::selection{background:rgba(52,224,232,.3)}
+  a{color:var(--cyan)}
+
+  /* ---------- Hero ---------- */
+  #hero{position:relative;height:100vh;min-height:640px;display:flex;align-items:center;justify-content:center;text-align:center}
+  #net{position:absolute;inset:0;width:100%;height:100%}
+  .hero-inner{position:relative;z-index:2;padding:0 24px;max-width:920px}
+  .kicker{letter-spacing:.45em;font-size:12px;color:var(--teal);text-transform:uppercase;margin-bottom:26px;opacity:0;animation:rise 1s .1s forwards}
+  .hero-quote{font-family:Georgia,"Times New Roman","Songti SC",serif;font-style:italic;
+    font-size:clamp(40px,7.4vw,92px);font-weight:700;line-height:1.12;
+    background:linear-gradient(120deg,#fff 20%,var(--cyan) 58%,var(--amber));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 60px rgba(52,224,232,.18);opacity:0;animation:rise 1.1s .3s forwards}
+  .hero-zh{margin-top:16px;font-size:clamp(18px,2.4vw,26px);color:var(--muted);opacity:0;animation:rise 1s .6s forwards}
+  .hero-hook{margin-top:20px;font-size:clamp(17px,2.5vw,24px);font-weight:800;color:var(--amber);
+    text-shadow:0 0 30px rgba(251,191,36,.25);opacity:0;animation:rise 1s .8s forwards}
+  .hero-src{margin-top:20px;font-size:14px;color:var(--muted);opacity:0;animation:rise 1s 1.02s forwards}
+  .hero-src b{color:var(--amber);font-weight:600}
+  .scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:3;color:var(--muted);font-size:12px;letter-spacing:.25em;opacity:0;animation:rise 1s 1.3s forwards}
+  .scroll-hint span{display:block;width:1px;height:42px;margin:10px auto 0;background:linear-gradient(var(--cyan),transparent);animation:drip 1.8s infinite}
+  @keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+  @keyframes rise{to{opacity:1;transform:translateY(0)}from{opacity:0;transform:translateY(26px)}}
+
+  /* ---------- Vocabulary chips ---------- */
+  .vocab{display:inline-flex;align-items:center;gap:7px;margin:5px 6px 5px 0;padding:5px 13px;border-radius:999px;
+    background:rgba(52,224,232,.08);border:1px solid rgba(52,224,232,.45);line-height:1.2;
+    font-size:13.5px;color:var(--ink);vertical-align:middle;white-space:nowrap}
+  .vocab b{color:var(--cyan);font-weight:800;letter-spacing:.3px}
+  .vocab i{font-style:normal;color:var(--muted);font-size:11.5px}
+  .vocab.amber{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.5)}
+  .vocab.amber b{color:var(--amber)}
+  .vocab.rose{background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.5)}
+  .vocab.rose b{color:var(--rose)}
+
+  /* ---------- Scroll connection HUD ---------- */
+  #hud{position:fixed;right:14px;bottom:14px;z-index:60;background:rgba(8,16,26,.85);
+    border:1px solid var(--line);border-radius:14px;padding:10px 15px;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    font-size:11.5px;color:var(--muted);text-align:right;box-shadow:0 10px 34px rgba(0,0,0,.45)}
+  #hud .hud-en{color:var(--cyan);letter-spacing:.8px;font-size:9.5px;text-transform:uppercase}
+  #hud .hud-num{font-size:clamp(20px,2.4vw,26px);font-weight:800;color:var(--amber);line-height:1.15;font-family:Georgia,serif}
+  #hud .hud-cap{font-size:10px;color:var(--muted)}
+
+  /* ---------- Generic sections ---------- */
+  section{position:relative;padding:clamp(90px,12vh,150px) 24px;max-width:1180px;margin:0 auto}
+  .eyebrow{font-size:13px;letter-spacing:.3em;color:var(--teal);text-transform:uppercase;margin-bottom:14px}
+  h2{font-size:clamp(28px,4.4vw,50px);font-weight:800;line-height:1.2;margin-bottom:18px}
+  .lead{font-size:clamp(16px,2vw,20px);color:var(--muted);max-width:760px}
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .9s ease,transform .9s ease}
+  .reveal.on{opacity:1;transform:none}
+
+  .myth{display:grid;grid-template-columns:1fr auto 1fr;gap:26px;align-items:stretch;margin-top:50px}
+  .myth .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;display:flex;flex-direction:column}
+  .myth .box h3{font-size:20px;margin-bottom:8px}
+  .myth .box p{color:var(--muted);font-size:15px}
+  .myth .old h3{color:var(--rose)} .myth .new h3{color:var(--teal)}
+  .myth .arrow{align-self:center;font-size:34px;color:var(--cyan);animation:nudge 1.6s infinite}
+  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}
+
+  /* ---------- Story layout ---------- */
+  .story{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .story.flip .visual{order:2}
+  .visual{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;position:relative;overflow:hidden}
+  .visual h4{font-size:13px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
+  .stat{background:rgba(8,16,26,.7);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .stat .num{font-size:clamp(24px,3.2vw,36px);font-weight:800;color:var(--cyan);line-height:1.1}
+  .stat .num.amber{color:var(--amber)}
+  .stat .lab{font-size:13px;color:var(--muted);margin-top:4px}
+  .note{font-size:13px;color:var(--muted);margin-top:16px;padding-left:14px;border-left:2px solid var(--amber)}
+
+  /* London map */
+  .mapwrap svg{width:100%;height:auto;display:block}
+  .map-route{fill:none;stroke:var(--cyan);stroke-width:1.6;stroke-linecap:round;stroke-dasharray:600;stroke-dashoffset:600;opacity:.85}
+  .on .map-route{animation:draw 2.6s ease forwards}
+  .on .map-route.r2{animation-delay:.25s;stroke:var(--teal)}
+  .on .map-route.r3{animation-delay:.5s;stroke:var(--amber)}
+  .on .map-route.r4{animation-delay:.75s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .radius-ring{fill:none;stroke:var(--amber);stroke-width:1.2;stroke-dasharray:6 6;opacity:.7;transform-origin:center;animation:spin 24s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .pin{fill:var(--amber);animation:beat 1.6s infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+
+  /* hippocampus */
+  .hippo-post{fill:rgba(52,224,232,.18);stroke:var(--cyan);stroke-width:2;transform-origin:center;transition:all 1.4s ease}
+  .on .hippo-post{fill:rgba(52,224,232,.42);transform:scale(1.06);filter:drop-shadow(0 0 12px var(--cyan))}
+  .hippo-ant{fill:rgba(251,113,133,.14);stroke:var(--rose);stroke-width:1.5}
+
+  /* juggling */
+  .jug-stage{height:230px;border-radius:16px;background:radial-gradient(ellipse at 50% 120%,rgba(52,224,232,.12),transparent 70%);position:relative;overflow:hidden}
+  .hand{position:absolute;bottom:14px;width:46px;height:14px;background:#274250;border-radius:8px}
+  .hand.l{left:14%}.hand.r{right:14%}
+  .ball{position:absolute;bottom:26px;width:26px;height:26px;border-radius:50%}
+  .b1{left:14%;background:radial-gradient(circle at 32% 30%,#a7f3f7,var(--cyan));animation:arcR 1.2s -.4s infinite linear}
+  .b2{left:14%;background:radial-gradient(circle at 32% 30%,#fde68a,var(--amber));animation:arcR 1.2s -.8s infinite linear}
+  .b3{left:14%;background:radial-gradient(circle at 32% 30%,#fecdd3,var(--rose));animation:arcL 1.2s 0s infinite linear}
+  @keyframes arcR{0%{left:14%;bottom:26px;animation-timing-function:ease-out}35%{left:50%;bottom:170px}50%{left:62%;bottom:150px;animation-timing-function:ease-in}100%{left:74%;bottom:26px}}
+  @keyframes arcL{0%{left:74%;bottom:26px;animation-timing-function:ease-out}35%{left:50%;bottom:170px}50%{left:38%;bottom:150px;animation-timing-function:ease-in}100%{left:14%;bottom:26px}}
+  .gm-row{display:flex;align-items:flex-end;gap:18px;height:150px;margin-top:14px}
+  .gm-bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px}
+  .gm-bar .bar{width:100%;max-width:74px;border-radius:8px 8px 0 0;background:linear-gradient(var(--teal),rgba(45,212,191,.25));height:24%;transition:height 1.6s ease}
+  .gm-bar .lab{font-size:12px;color:var(--muted);text-align:center}
+  .on .gm-bar.s2 .bar{height:92%}
+  .on .gm-bar.s3 .bar{height:48%;background:linear-gradient(var(--rose),rgba(251,113,133,.2))}
+
+  /* CIMT */
+  .map-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:14px}
+  .map-grid i{aspect-ratio:1;border-radius:4px;background:rgba(120,200,210,.12);transition:all .6s ease}
+  .on .map-grid i.hot{background:var(--cyan);box-shadow:0 0 10px rgba(52,224,232,.7)}
+  .sling-arm{stroke:var(--muted);stroke-width:3;fill:none;stroke-linecap:round}
+  .sling{stroke:var(--rose);stroke-width:4;fill:none;stroke-linecap:round;stroke-dasharray:300;stroke-dashoffset:300}
+  .on .sling{animation:draw 1.6s ease forwards}
+
+  /* neurons */
+  .neuron-stage{position:relative}
+  .neuron-stage svg{width:100%;height:auto}
+  .cell{fill:rgba(52,224,232,.2);stroke:var(--cyan);stroke-width:2}
+  .wire{stroke:var(--muted);stroke-width:2;fill:none;stroke-linecap:round;transition:stroke-width .5s ease,stroke .5s ease}
+  .wire.fat{stroke-width:3}
+  .wire.locked{stroke:var(--amber);filter:drop-shadow(0 0 8px var(--amber))}
+  .spark{fill:var(--amber)}
+  .pulse-dot{fill:var(--amber);offset-path:path('M 250 190 C 330 190 360 190 430 190');offset-distance:0%}
+  .on .pulse-dot.ambient{animation:travel 2.2s infinite ease-in-out}
+  .pulse-dot.live{animation:travel 1.05s ease-in-out forwards}
+  @keyframes travel{from{offset-distance:0%}to{offset-distance:100%}}
+  .fire-wrap{margin-top:18px;text-align:center}
+  #fireBtn{cursor:pointer;border:1px solid var(--amber);
+    background:linear-gradient(160deg,rgba(251,191,36,.2),rgba(251,191,36,.05));
+    color:var(--amber);font-weight:800;font-size:16px;padding:14px 30px;border-radius:999px;
+    transition:transform .15s ease,box-shadow .3s ease,color .3s}
+  #fireBtn:hover{box-shadow:0 0 26px rgba(251,191,36,.45)}
+  #fireBtn:active{transform:scale(.94)}
+  #fireBtn.done{border-color:var(--teal);color:var(--teal);
+    background:linear-gradient(160deg,rgba(45,212,191,.18),rgba(45,212,191,.04))}
+  #fireStatus{margin-top:12px;font-size:14px;color:var(--muted);min-height:24px}
+  #fireStatus b{color:var(--cyan)}
+  .big-counts{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:36px}
+  .big{background:linear-gradient(160deg,rgba(52,224,232,.1),transparent);border:1px solid var(--line);border-radius:18px;padding:30px;text-align:center}
+  .big .num{font-size:clamp(34px,5vw,60px);font-weight:800;color:var(--cyan)}
+  .big .lab{color:var(--muted);font-size:15px;margin-top:6px}
+
+  /* critical period door */
+  .door-wrap{display:flex;justify-content:center;margin-top:30px}
+  .door{width:220px;height:260px;border:3px solid var(--teal);border-radius:120px 120px 10px 10px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 0,rgba(52,224,232,.35),transparent 70%)}
+  .door .gap{position:absolute;left:50%;top:0;transform:translateX(-50%);width:150px;background:linear-gradient(rgba(251,191,36,.55),rgba(251,191,36,.08));border-left:2px dashed var(--amber);border-right:2px dashed var(--amber);height:100%;transition:width 2s ease}
+  .on .door .gap{width:54px}
+
+  /* closing */
+  .closing{text-align:center}
+  .tips{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:46px 0}
+  .tip{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px 22px}
+  .tip .ic{font-size:34px;margin-bottom:12px}
+  .tip h3{font-size:18px;margin-bottom:8px;color:var(--teal)}
+  .tip p{font-size:14px;color:var(--muted)}
+  .easter{display:inline-block;margin-top:10px;padding:14px 24px;border:1px dashed var(--amber);border-radius:14px;color:var(--amber);font-size:15px}
+  footer{border-top:1px solid var(--line);padding:50px 24px 40px;color:var(--muted);font-size:13px}
+  footer .inner{max-width:1180px;margin:0 auto}
+  footer ol{margin:14px 0 0 18px;columns:2;gap:40px}
+  footer li{margin-bottom:6px;break-inside:avoid}
+  footer a{word-break:break-all}
+
+  @media(max-width:860px){
+    .story,.story.flip{grid-template-columns:1fr;gap:30px}
+    .story.flip .visual{order:0}
+    .myth{grid-template-columns:1fr}.myth .arrow{transform:rotate(90deg)}
+    .tips{grid-template-columns:1fr}
+    footer ol{columns:1}
+    .big-counts{grid-template-columns:1fr}
+    #hud{right:8px;bottom:8px;padding:8px 11px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;transition-duration:.2ms!important}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header id="hero">
+  <canvas id="net"></canvas>
+  <div class="hero-inner">
+    <div class="kicker">Blackhole Moment · 黑洞时刻</div>
+    <h1 class="hero-quote">Practice makes perfect.</h1>
+    <p class="hero-zh">熟能生巧。</p>
+    <p class="hero-hook">这不是一句鸡汤，而是物理法则！</p>
+    <p class="hero-src">英语传统谚语 · <b>1550 年代</b>已有书面记录 —— 而今天，科学证明这句话是真的</p>
+  </div>
+  <div class="scroll-hint">向下滚动<span></span></div>
+</header>
+
+<!-- ================= MYTH ================= -->
+<section class="reveal">
+  <div class="eyebrow">一个被误解了几十年的问题</div>
+  <h2>成年人大脑，<br>真的“定型”了吗？</h2>
+  <p class="lead">过去，科学家以为大脑像一台出厂即焊死的电路：童年发育，成年固定，之后只走向衰退。但三个真实的实验，彻底改写了这个答案。</p>
+  <div class="myth">
+    <div class="box old">
+      <h3>旧观点</h3>
+      <p>成年大脑结构不变，神经细胞只减不增，学不会新本事。</p>
+    </div>
+    <div class="arrow">→</div>
+    <div class="box new">
+      <h3>新发现</h3>
+      <p>大脑终生可塑：经验和练习，真的会改变它的物理结构。</p>
+      <span class="vocab" style="margin-top:14px;align-self:flex-start"><b>Neuroplasticity</b><i>神经可塑性</i></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STORY 1: TAXI ================= -->
+<section class="story reveal">
+  <div class="visual mapwrap">
+    <h4>伦敦 · The Knowledge</h4>
+    <svg viewBox="0 0 460 300" aria-label="伦敦街道与路线示意">
+      <g stroke="rgba(120,200,210,.14)" stroke-width="1">
+        <path d="M0 60 H460 M0 120 H460 M0 180 H460 M0 240 H460"/>
+        <path d="M80 0 V300 M180 0 V300 M280 0 V300 M380 0 V300"/>
+      </g>
+      <circle class="radius-ring" cx="230" cy="150" r="118"/>
+      <path class="map-route" d="M230 150 C 180 90, 120 120, 60 60"/>
+      <path class="map-route r2" d="M230 150 C 300 90, 360 120, 420 50"/>
+      <path class="map-route r3" d="M230 150 C 150 210, 110 200, 40 260"/>
+      <path class="map-route r4" d="M230 150 C 310 220, 370 210, 440 270"/>
+      <circle class="pin" cx="230" cy="150" r="7"/>
+    </svg>
+    <div class="note">《蓝皮书》320 条标准路线，覆盖查令十字街 6 英里范围；媒体常说“2.5 万条街”，官方口径为“成千上万条街道 + 约 6,000 个兴趣点”。</div>
+  </div>
+  <div class="text">
+    <div class="eyebrow">实验一 · 2000</div>
+    <h2>背下整座城市的<br>出租车司机</h2>
+    <p class="lead">想在伦敦开黑色出租车，必须通过世界上最难的考试 “The Knowledge（记忆之路）”——通常要学 <b style="color:var(--amber)">3 到 4 年</b>。神经科学家 Maguire 扫描了他们的大脑，发现了惊人的变化。</p>
+    <div class="stat-grid">
+      <div class="stat"><div class="num" data-count="320">0</div><div class="lab">条必背路线</div></div>
+      <div class="stat"><div class="num" data-count="6000">0</div><div class="lab">个兴趣点（官方口径）</div></div>
+      <div class="stat"><div class="num amber">16 / 50</div><div class="lab">司机 / 对照者脑部 MRI</div></div>
+      <div class="stat"><div class="num amber" data-count="1865">0</div><div class="lab">年起设立的考试</div></div>
+    </div>
+    <div class="visual" style="margin-top:20px;padding:18px">
+      <span class="vocab amber"><b>Hippocampus</b><i>海马体</i></span>
+      <svg viewBox="0 0 460 150" aria-label="海马体示意">
+        <path class="hippo-ant" d="M120 90 C 150 40, 220 40, 250 80 C 235 100, 180 120, 140 110 Z"/>
+        <path class="hippo-post" d="M250 80 C 290 30, 360 50, 370 95 C 340 125, 280 120, 250 95 Z"/>
+        <text x="150" y="30" fill="#fb7185" font-size="13">前侧（对照更大）</text>
+        <text x="285" y="30" fill="#34e0e8" font-size="13">后侧：司机显著更大</text>
+      </svg>
+    </div>
+    <p class="note">司机的<b style="color:var(--cyan)">后侧海马体显著更大</b>，且从业越久越大；2006 年与公交车司机对比，确认是空间记忆、而非开车本身造成的。</p>
+  </div>
+</section>
+
+<!-- ================= STORY 2: JUGGLING ================= -->
+<section class="story flip reveal">
+  <div class="visual">
+    <h4>三个月 · 三球抛接</h4>
+    <div class="jug-stage">
+      <div class="hand l"></div><div class="hand r"></div>
+      <div class="ball b1"></div><div class="ball b2"></div><div class="ball b3"></div>
+    </div>
+    <div style="margin-top:16px">
+      <span class="vocab"><b>Gray matter</b><i>灰质</i></span>
+      <span class="vocab amber"><b>hMT / V5</b><i>运动视觉区</i></span>
+    </div>
+    <div class="gm-row">
+      <div class="gm-bar s1"><div class="bar"></div><div class="lab">训练前</div></div>
+      <div class="gm-bar s2"><div class="bar"></div><div class="lab">3 个月后</div></div>
+      <div class="gm-bar s3"><div class="bar"></div><div class="lab">停练 3 个月</div></div>
+    </div>
+    <div class="note">变化发生在大脑处理“运动视觉”的 hMT/V5 区；停练后灰质回退——用进废退。</div>
+  </div>
+  <div class="text">
+    <div class="eyebrow">实验二 · 2004 · Nature</div>
+    <h2>三个月，<br>大脑真的“长大了”</h2>
+    <p class="lead">一群普通人从零开始，用三个月学会三球抛接。核磁共振显示，他们大脑中负责处理运动画面的区域出现了<b style="color:var(--teal)">灰质增加</b>；而停止练习三个月后，增加的部分又缩了回去。</p>
+    <div class="stat-grid">
+      <div class="stat"><div class="num">3 个月</div><div class="lab">即可测出结构变化</div></div>
+      <div class="stat"><div class="num amber">hMT/V5</div><div class="lab">运动视觉脑区</div></div>
+    </div>
+    <p class="note">来源：Draganski et al., Nature 427:311–312, 2004。这不是比喻，是 MRI 下可见的物理改变。</p>
+  </div>
+</section>
+
+<!-- ================= STORY 3: CIMT ================= -->
+<section class="story reveal">
+  <div class="visual">
+    <h4>强制性使用运动疗法 CIMT</h4>
+    <svg viewBox="0 0 460 180" aria-label="手臂与吊带示意">
+      <path class="sling-arm" d="M60 120 C 150 70, 260 70, 380 110"/>
+      <circle cx="380" cy="110" r="16" fill="#274250"/>
+      <path class="sling" d="M120 40 L260 120 M260 40 L120 120"/>
+      <text x="280" y="60" fill="#fb7185" font-size="13">好手臂被约束</text>
+    </svg>
+    <h4 style="margin-top:22px">患侧手的大脑运动地图</h4>
+    <span class="vocab rose" style="margin-top:6px"><b>Cortical map</b><i>皮层运动地图</i></span>
+    <div class="map-grid" id="cimtGrid"></div>
+    <div class="note">治疗后，患侧手在皮层上的“地盘”明显扩大，真实功能改善且可维持。</div>
+  </div>
+  <div class="text">
+    <div class="eyebrow">实验三 · Taub</div>
+    <h2>中风多年后，<br>依然能重新学会动手</h2>
+    <p class="lead">中风后，大脑一度“命令”患者放弃患侧手臂，形成“习得性废用”。CIMT 疗法反其道而行：把<b style="color:var(--rose)">好手臂绑起来</b>，强迫患侧在数周内密集练习——大脑于是重新接线。</p>
+    <div class="stat-grid">
+      <div class="stat"><div class="num amber">约束好手</div><div class="lab">强迫患侧重复使用</div></div>
+      <div class="stat"><div class="num">地图扩大</div><div class="lab">皮层运动代表区重塑</div></div>
+    </div>
+    <p class="note">即使在中风多年的“慢性期”，功能仍能改善。来源：Taub 等，CIMT 临床与影像研究。</p>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="reveal">
+  <div class="eyebrow">底层原理</div>
+  <h2>大脑到底是怎么“被练出来”的？</h2>
+  <div style="margin:10px 0 0">
+    <span class="vocab"><b>Neuron</b><i>神经元</i></span>
+    <span class="vocab amber"><b>Synapse</b><i>突触</i></span>
+    <span class="vocab"><b>Hebb's rule</b><i>赫布定律</i></span>
+    <span class="vocab amber"><b>LTP</b><i>长时程增强</i></span>
+  </div>
+  <div class="story" style="margin-top:30px">
+    <div class="visual neuron-stage">
+      <h4>一起放电，就会连在一起（动手试试）</h4>
+      <svg id="neuronSvg" viewBox="0 0 600 260">
+        <g>
+          <circle class="cell" cx="150" cy="130" r="42"/>
+          <path d="M150 88 V60 M120 96 L92 74 M180 96 L208 74 M120 164 L96 186 M180 164 L206 188" stroke="#34e0e8" stroke-width="2" fill:none"/>
+        </g>
+        <g>
+          <circle class="cell" cx="450" cy="130" r="42"/>
+          <path d="M450 88 V60 M420 96 L392 74 M480 96 L508 74 M420 164 L396 186 M480 164 L506 188" stroke="#34e0e8" stroke-width="2" fill:none"/>
+        </g>
+        <path class="wire" d="M192 130 H408"/>
+        <path class="wire fat" id="wireFat" d="M192 150 H408"/>
+        <circle class="pulse-dot ambient" r="7"/>
+        <text x="225" y="222" fill="#93a9b0" font-size="13">反复放电 → 突触被加固（LTP, 1973）</text>
+      </svg>
+      <div class="fire-wrap">
+        <button id="fireBtn">⚡ 点我放电 Fire!</button>
+        <p id="fireStatus">点按按钮，模拟一次神经放电；连点 6 次，看看会发生什么。</p>
+      </div>
+    </div>
+    <div class="text">
+      <p class="lead">1949 年，心理学家 Hebb 提出：当两个神经元<b style="color:var(--amber)">反复一起放电</b>，它们之间的连接就会变强。后人把它总结成一句口诀：</p>
+      <p style="font-size:clamp(20px,2.8vw,30px);font-weight:800;color:var(--cyan);margin:20px 0;font-family:Georgia,serif;font-style:italic">“Neurons that fire together,<br>wire together.”</p>
+      <p class="lead">1973 年，Bliss 与 Lømo 在海马体找到了这种强化现象（LTP）。你每次练习，都是在把某条线路“焊”得更粗、更快。</p>
+      <div class="big-counts">
+        <div class="big"><div class="num" data-count="860" data-suffix=" 亿">0</div><div class="lab">个神经元（Azevedo, 2009）</div></div>
+        <div class="big"><div class="num">数以百万亿</div><div class="lab">个突触连接</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CRITICAL PERIOD ================= -->
+<section class="reveal">
+  <div class="eyebrow">一个重要的细节</div>
+  <h2 style="text-align:center">孩子学得快，<br>大人就学不会了吗？</h2>
+  <p class="lead" style="margin:0 auto;text-align:center">Hubel 与 Wiesel 的小猫实验发现了“关键期”，并因此获得 1981 年诺贝尔奖。但关键期不是一扇“砰然关上的门”——它会变窄，却始终留着缝。</p>
+  <div style="text-align:center;margin-top:20px">
+    <span class="vocab"><b>Critical period</b><i>关键期</i></span>
+  </div>
+  <div class="door-wrap">
+    <div class="door"><div class="gap"></div></div>
+  </div>
+  <p class="lead" style="margin:24px auto 0;text-align:center">成年大脑依然可塑，只是需要<b style="color:var(--amber)">更专注、更重复</b>的练习。</p>
+</section>
+
+<!-- ================= CLOSING ================= -->
+<section class="closing reveal">
+  <div class="eyebrow">所以</div>
+  <h2>你的大脑，<br>是一个永不竣工的工地</h2>
+  <p class="lead" style="margin:0 auto">每一次重复，都在铺设或加固一条线路。怎么练最有效？记住三件事：</p>
+  <div class="tips">
+    <div class="tip"><div class="ic">🔁</div><h3>重复，再重复</h3><p>刻意、专注地练同一个动作，线路才会被加固。</p></div>
+    <div class="tip"><div class="ic">🌙</div><h3>睡个好觉</h3><p>睡眠会把白天练的内容“写”进大脑，缺觉等于白练一半。</p></div>
+    <div class="tip"><div class="ic">🚀</div><h3>接受一点挑战</h3><p>练“稍微难一点点”的内容，最能刺激大脑生长。</p></div>
+  </div>
+  <div class="easter">彩蛋：2024 年诺贝尔物理学奖，颁给了受大脑神经元启发而发明人工神经网络的 Hopfield 与 Hinton——我们造 AI，用的正是大脑自己的方法。</div>
+</section>
+
+<footer>
+  <div class="inner">
+    <b>资料来源（数据与实验均为真实研究，数字标注口径）</b>
+    <ol>
+      <li>Transport for London — Learn the Knowledge：<a href="https://tfl.gov.uk/info-for/taxis-and-private-hire/licensing/learn-the-knowledge-of-london">tfl.gov.uk</a></li>
+      <li>Maguire et al. 2000, PNAS：<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC18253/">PMC18253</a></li>
+      <li>Maguire et al. 2006 出租车/公交对比：fil.ion.ucl.ac.uk</li>
+      <li>Draganski et al. 2004, Nature 427:311–312：wesleyschool.org PDF</li>
+      <li>Azevedo et al. 2009, J. Comp. Neurol. 513:532–541：<a href="http://faculty.washington.edu/chudler/what.html">Neuroscience For Kids</a></li>
+      <li>CIMT 理论与 Taub 研究：<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4072972/">PMC4072972</a></li>
+      <li>Hebb 1949《The Organization of Behavior》：handwiki.org/Hebbian theory</li>
+      <li>Hubel & Wiesel 1981 诺贝尔奖：nobelprize.org</li>
+    </ol>
+    <p style="margin-top:18px">突触数量为区间估计（约上百万亿，不同研究口径不同）；“记忆之路”街道数采用 TfL 官方保守口径。页面中高亮的英文词为核心概念词汇：Neuroplasticity / Neuron / Synapse / Hippocampus / Gray matter / LTP / Critical period。</p>
+  </div>
+</footer>
+
+<!-- Scroll connection HUD -->
+<div id="hud">
+  <div class="hud-en">Connection counter</div>
+  <div class="hud-num" id="hudNum">0</div>
+  <div class="hud-cap">本次浏览模拟点亮的连接</div>
+</div>
+
+<script>
+/* ---------- Scroll reveal ---------- */
+const io = new IntersectionObserver((es)=>{
+  es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); runCounts(e.target);} });
+},{threshold:.25});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---------- Count up ---------- */
+function runCounts(scope){
+  scope.querySelectorAll('[data-count]').forEach(el=>{
+    if(el.dataset.done) return; el.dataset.done='1';
+    const target = +el.dataset.count, suffix = el.dataset.suffix||'';
+    const t0 = performance.now(), dur = 1500;
+    (function tick(t){
+      const p = Math.min((t-t0)/dur,1), v = Math.round(target*(1-Math.pow(1-p,3)));
+      el.textContent = v + suffix;
+      if(p<1) requestAnimationFrame(tick);
+    })(t0);
+  });
+}
+
+/* ---------- CIMT cortical map ---------- */
+const grid = document.getElementById('cimtGrid');
+const hot = [10,11,18,19,20,26,27,28,34,35,42,43];
+for(let i=0;i<48;i++){
+  const c=document.createElement('i');
+  if(hot.includes(i)) c.className='hot';
+  grid.appendChild(c);
+}
+
+/* ---------- Interactive Hebb firing ---------- */
+const svg = document.getElementById('neuronSvg');
+const wireFat = document.getElementById('wireFat');
+const fireBtn = document.getElementById('fireBtn');
+const fireStatus = document.getElementById('fireStatus');
+let fireCount = 0;
+function spawnPulse(){
+  const d = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  d.setAttribute('r','7');
+  d.setAttribute('class','pulse-dot live');
+  svg.appendChild(d);
+  setTimeout(()=>d.remove(),1150);
+}
+fireBtn.addEventListener('click',()=>{
+  fireCount++;
+  spawnPulse();
+  const w = Math.min(3 + fireCount*1.4, 11);
+  wireFat.style.strokeWidth = w;
+  if(fireCount < 3){
+    fireBtn.textContent = '⚡ 再来一次！';
+    fireStatus.innerHTML = '突触察觉到了信号。已放电 <b>'+fireCount+'</b> 次，继续！';
+  }else if(fireCount < 6){
+    fireBtn.textContent = '⚡ 继续放电！';
+    fireStatus.innerHTML = '突触正在<b>变粗、变快</b>… 已放电 <b>'+fireCount+'</b> 次。';
+  }else{
+    wireFat.classList.add('locked');
+    fireBtn.classList.add('done');
+    fireBtn.textContent = '✓ 连接已加固';
+    fireStatus.innerHTML = '<b>LTP 发生！</b>这条连接被长期加固——这，就是“练习改变大脑”的物理本质。';
+  }
+});
+
+/* ---------- Scroll connection HUD ---------- */
+const hudNum = document.getElementById('hudNum');
+let hudShown = 0, hudTarget = 0;
+function computeHudTarget(){
+  const max = document.documentElement.scrollHeight - innerHeight;
+  const p = max > 0 ? Math.min(scrollY/max,1) : 0;
+  hudTarget = Math.floor(p * 12800);
+}
+addEventListener('scroll', computeHudTarget, {passive:true});
+addEventListener('resize', computeHudTarget);
+computeHudTarget();
+(function hudLoop(){
+  if(hudShown < hudTarget){
+    hudShown += Math.max(1, Math.ceil((hudTarget-hudShown)/8));
+    if(hudShown > hudTarget) hudShown = hudTarget;
+    hudNum.textContent = hudShown.toLocaleString();
+  }
+  requestAnimationFrame(hudLoop);
+})();
+
+/* ---------- Hero neural network ---------- */
+const cv = document.getElementById('net'), ctx = cv.getContext('2d');
+let W,H,nodes,pulses;
+const N = Math.min(90, Math.floor(innerWidth/18));
+function init(){
+  W = cv.width = cv.offsetWidth; H = cv.height = cv.offsetHeight;
+  nodes = Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.25,vy:(Math.random()-.55)*.25}));
+  pulses = [];
+}
+function links(){
+  const out=[];
+  for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+    const a=nodes[i],b=nodes[j],d=Math.hypot(a.x-b.x,b.y-a.y);
+    if(d<130) out.push([i,j,d]);
+  }
+  return out;
+}
+function frame(){
+  ctx.clearRect(0,0,W,H);
+  nodes.forEach(n=>{
+    n.x+=n.vx;n.y+=n.vy;
+    if(n.x<0||n.x>W)n.vx*=-1; if(n.y<0||n.y>H)n.vy*=-1;
+  });
+  const L = links();
+  L.forEach(([i,j,d])=>{
+    ctx.strokeStyle=`rgba(90,200,210,${(1-d/130)*.28})`;
+    ctx.lineWidth=1; ctx.beginPath();
+    ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+  });
+  if(Math.random()<.02 && L.length){ const [i,j]=L[Math.floor(Math.random()*L.length)]; pulses.push({i,j,p:0}); }
+  pulses = pulses.filter(p=>p.p<1);
+  pulses.forEach(p=>{
+    p.p+=.012;
+    const a=nodes[p.i],b=nodes[p.j],x=a.x+(b.x-a.x)*p.p,y=a.y+(b.y-a.y)*p.p;
+    ctx.fillStyle='#fbbf24'; ctx.shadowColor='#fbbf24'; ctx.shadowBlur=10;
+    ctx.beginPath();ctx.arc(x,y,2.4,0,7);ctx.fill();ctx.shadowBlur=0;
+  });
+  nodes.forEach(n=>{
+    ctx.fillStyle='rgba(120,220,225,.75)';
+    ctx.beginPath();ctx.arc(n.x,n.y,1.8,0,7);ctx.fill();
+  });
+  requestAnimationFrame(frame);
+}
+addEventListener('resize',init);
+init(); frame();
+</script>
+</body>
+</html>
